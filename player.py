@@ -16,6 +16,8 @@ class Player:
         self.weapon = Pistol()
         self.bullets = []
 
+        self.hp = 3
+
     def move(self):
         self.x_vel = 0
         self.y_vel = 0
@@ -108,7 +110,53 @@ class Player:
     def update_bullets(self):
         self.bullets = [i for i in self.bullets if i.update()]
 
+    def check_bullet_collision(self, enemies):
+        for bullet in self.bullets:
+            for enemy in enemies:
+                if bullet.rect.colliderect(enemy.rect):
+                    if not enemy.take_damage(bullet.damage):
+                        enemies.remove(enemy)
+                    self.bullets.remove(bullet)
+                    break
+
+    def take_damage(self):
+        self.hp -= 1
+        if self.hp <= 0:
+            print("Game Over")
+
+    def get_dash_cooldown(self):
+        time_since_dash = ((pygame.time.get_ticks() / 1000) - (self.last_dash_time / 1000))
+        remaining_time = max(0, (s.DASH_COOLDOWN / 1000) - time_since_dash)
+        return remaining_time
+    
+    def draw_UI(self, screen):
+        # 체력 UI
+        for i in range(self.hp):
+            pygame.draw.rect(screen, s.RED, (10 + i * 30, 10, 20, 20))
+
+        # 무기 UI
+        font = pygame.font.Font(None, 24)
+        weapon_text = font.render(f"Weapon : {self.weapon.__class__.__name__.upper()}", True, s.BLACK)
+        screen.blit(weapon_text, (10, 40))
+
+        # 대쉬 쿨타임 UI
+        dash_cooldown = self.get_dash_cooldown()
+        dash_color = s.GRAY if dash_cooldown > 0 else s.WHITE
+        dash_rect = pygame.Rect(10, 70, 120, 30)
+
+        pygame.draw.rect(screen, s.BLACK, dash_rect, 2)
+        pygame.draw.rect(screen, dash_color, dash_rect.inflate(-4, -4))
+        if dash_cooldown > 0:
+            cooldown_text = font.render(f"{dash_cooldown:.1f}s", True, s.BLACK)
+            screen.blit(cooldown_text, (20, 75))
+
+        else:
+            dash_text = font.render("Dash Ready", True, s.BLACK)
+            text_pos = dash_text.get_rect(center=dash_rect.center)
+            screen.blit(dash_text, (20, 75))
+
     def draw(self, screen):
         pygame.draw.rect(screen, s.BLUE, self.rect)
         for bullet in self.bullets:
             bullet.draw(screen)
+        self.draw_UI(screen)

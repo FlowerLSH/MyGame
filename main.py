@@ -1,4 +1,5 @@
 import pygame
+from enemy import Enemy
 import settings as s
 from player import Player
 
@@ -11,6 +12,8 @@ player = Player(s.SCREEN_WIDTH // 2, s.SCREEN_HEIGHT // 2)
 
 loopFinished = False
 clock = pygame.time.Clock()
+
+enemies = [Enemy(600, 300, 100)]
 
 while not loopFinished:
     for event in pygame.event.get():
@@ -28,16 +31,20 @@ while not loopFinished:
             elif event.key == pygame.K_x:
                 if player.is_pistol():
                     player.attack()
-                    4
+                    
     if pygame.key.get_pressed()[pygame.K_x] and not player.is_pistol():
         player.attack()
 
     player.move()
     
     player.update_bullets()
+    player.check_bullet_collision(enemies)
 
     screen.fill(s.WHITE)
     player.draw(screen)
+
+    for enemy in enemies:
+        enemy.draw(screen)
 
     pygame.display.flip()
     clock.tick(60)
