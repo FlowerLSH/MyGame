@@ -119,14 +119,13 @@ class Player:
                     self.bullets.remove(bullet)
                     break
 
-    def check_enemy_bullet_collision(self):
-        for bullet in self.bullets:
-            for enemy in enemies:
-                if bullet.rect.colliderect(enemy.rect):
-                    if not enemy.take_damage(bullet.damage):
-                        enemies.remove(enemy)
-                    self.bullets.remove(bullet)
-                    break
+    def check_enemy_bullet_collision(self, enemies):
+        for enemy in enemies:
+            for bullet in enemy.bullets:
+                if self.rect.colliderect(bullet.rect):  # 플레이어와 총알이 충돌하면
+                    self.take_damage()  # 플레이어의 체력 감소
+                    enemy.bullets.remove(bullet)  # 충돌한 총알 제거
+                    break  # 한 번 충돌한 후 종료
 
     def take_damage(self):
         self.hp -= 1

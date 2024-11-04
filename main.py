@@ -39,12 +39,15 @@ while not loopFinished:
     
     player.update_bullets()
     player.check_bullet_collision(enemies)
+    player.check_enemy_bullet_collision(enemies)
 
     screen.fill(s.WHITE)
     player.draw(screen)
 
     for enemy in enemies:
         enemy.move()
+        enemy.fire_bullet()
+        enemy.update_bullets()
         enemy.draw(screen)
 
     pygame.display.flip()
