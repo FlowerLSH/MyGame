@@ -1,10 +1,11 @@
 from Enemy_wave import Wave
 
 class Stage:
-    def __init__(self, wave_data, is_maintenance = False):
-        self.waves = [Wave(wave) for wave in wave_data]
+    def __init__(self, stage_data):
+        self.waves = [Wave(wave) for wave in stage_data[0]]
         self.current_wave_index = 0
-        self.is_maintenance = is_maintenances
+        self.stage_index = stage_data[1]
+        self.is_maintenance = stage_data[2]
 
     def update(self):
         if not self.is_maintenance:

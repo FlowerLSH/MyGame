@@ -74,6 +74,20 @@ while not loopFinished:
     screen.fill(s.WHITE)
     player.draw(screen)
 
+    if current_stage.is_maintenance:
+        portal = pygame.Rect(350, 250, 50, 50)
+        pygame.draw.rect(screen, s.GREEN, portal)
+
+        if player.rect.colliderect(portal):
+            if stage_index < (len(stage_data) - 1):
+                stage_index += 1
+                fade_out(screen)
+                fade_in(screen)
+                current_stage = Stage(stage_data[stage_index])
+                enemies = []
+            else:
+                print("Game Clear")
+
     for enemy in enemies:
         enemy.move()
         enemy.fire_bullet()
@@ -82,7 +96,7 @@ while not loopFinished:
     
     if current_stage.is_finished() and not enemies:
         if stage_index < (len(stage_data) - 1):
-            print("Stage", stage_index + 1, "Clear")
+            print("Stage", current_stage.stage_index, "Clear")
             stage_index += 1
             fade_out(screen)
             fade_in(screen)
