@@ -2,6 +2,29 @@ import pygame
 from enemy_types import *
 import settings as s
 from player import Player
+from stage import Stage
+from stage_data import *
+
+def fade_out(screen, speed=5):
+    fade_surface = pygame.Surface(screen.get_size())
+    fade_surface = fade_surface.convert()
+    for i in range(0, 255, speed):
+        fade_surface.fill((0, 0, 0))
+        fade_surface.set_alpha(i)
+        screen.blit(fade_surface, (0, 0))
+        pygame.display.flip()
+        pygame.time.delay(30)
+
+def fade_in(screen, speed=5):
+    fade_surface = pygame.Surface(screen.get_size())
+    fade_surface = fade_surface.convert()
+    for i in range(255, -1, -speed):
+        fade_surface.fill((0, 0, 0))
+        fade_surface.set_alpha(i)
+        screen.blit(fade_surface, (0, 0))
+        pygame.display.flip()
+        pygame.time.delay(30)
+
 
 pygame.init()
 
@@ -10,10 +33,13 @@ pygame.display.set_caption("SWCON Project")
 
 player = Player(s.SCREEN_WIDTH // 2, s.SCREEN_HEIGHT // 2)
 
+stage_index = 0
+
+current_stage = Stage(stage_data[0])
+enemies = []
+
 loopFinished = False
 clock = pygame.time.Clock()
-
-enemies = [SmallEnemy(600, 200), MediumEnemy(600, 300), LargeEnemy(600, 400)]
 
 while not loopFinished:
     for event in pygame.event.get():
@@ -41,6 +67,10 @@ while not loopFinished:
     player.check_bullet_collision(enemies)
     player.check_enemy_bullet_collision(enemies)
 
+    new_enemy = current_stage.update()
+    if new_enemy:
+        enemies.append(new_enemy)
+
     screen.fill(s.WHITE)
     player.draw(screen)
 
@@ -49,6 +79,17 @@ while not loopFinished:
         enemy.fire_bullet()
         enemy.update_bullets()
         enemy.draw(screen)
+    
+    if current_stage.is_finished() and not enemies:
+        if stage_index < (len(stage_data) - 1):
+            print("Stage", stage_index + 1, "Clear")
+            stage_index += 1
+            fade_out(screen)
+            fade_in(screen)
+            current_stage = Stage(stage_data[stage_index])
+            enemies = []
+        else:
+            print("Game Clear")
 
     pygame.display.flip()
     clock.tick(60)
