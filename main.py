@@ -1,5 +1,5 @@
 import pygame
-from enemy import Enemy
+from enemy_types import *
 import settings as s
 from player import Player
 
@@ -13,7 +13,7 @@ player = Player(s.SCREEN_WIDTH // 2, s.SCREEN_HEIGHT // 2)
 loopFinished = False
 clock = pygame.time.Clock()
 
-enemies = [Enemy(600, 300, 100)]
+enemies = [SmallEnemy(600, 200), MediumEnemy(600, 300), LargeEnemy(600, 400)]
 
 while not loopFinished:
     for event in pygame.event.get():
@@ -44,6 +44,7 @@ while not loopFinished:
     player.draw(screen)
 
     for enemy in enemies:
+        enemy.move()
         enemy.draw(screen)
 
     pygame.display.flip()

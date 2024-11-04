@@ -119,6 +119,15 @@ class Player:
                     self.bullets.remove(bullet)
                     break
 
+    def check_enemy_bullet_collision(self):
+        for bullet in self.bullets:
+            for enemy in enemies:
+                if bullet.rect.colliderect(enemy.rect):
+                    if not enemy.take_damage(bullet.damage):
+                        enemies.remove(enemy)
+                    self.bullets.remove(bullet)
+                    break
+
     def take_damage(self):
         self.hp -= 1
         if self.hp <= 0:
