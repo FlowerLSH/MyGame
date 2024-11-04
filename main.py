@@ -4,6 +4,8 @@ import settings as s
 from player import Player
 from stage import Stage
 from stage_data import *
+from ui_manager import UIManager
+import time
 
 def fade_out(screen, speed=5):
     fade_surface = pygame.Surface(screen.get_size())
@@ -25,7 +27,6 @@ def fade_in(screen, speed=5):
         pygame.display.flip()
         pygame.time.delay(30)
 
-
 pygame.init()
 
 screen = pygame.display.set_mode((s.SCREEN_WIDTH, s.SCREEN_HEIGHT))
@@ -38,10 +39,22 @@ stage_index = 0
 current_stage = Stage(stage_data[0])
 enemies = []
 
+font = pygame.font.Font(None, 80)
+ui_manager = UIManager(screen, font)
+
 loopFinished = False
 clock = pygame.time.Clock()
 
+game_clear = False
+
+if stage_index == 0 and not ui_manager.ui_active:
+    ui_manager.display_stage_ui(f"Stage {current_stage.stage_index} Start!")
+
+
 while not loopFinished:
+    if ui_manager.update():
+        continue
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             loopFinished = True
@@ -57,6 +70,12 @@ while not loopFinished:
             elif event.key == pygame.K_x:
                 if player.is_pistol():
                     player.attack()
+
+            elif event.key == pygame.K_ESCAPE:
+                if game_clear:
+                    loopFinished = True
+                else:
+                    continue
                     
     if pygame.key.get_pressed()[pygame.K_x] and not player.is_pistol():
         player.attack()
@@ -74,6 +93,11 @@ while not loopFinished:
     screen.fill(s.WHITE)
     player.draw(screen)
 
+    if game_clear:
+        font = pygame.font.Font(None, 40)
+        weapon_text = font.render("Press ESC to QUIT", True, s.BLACK)
+        screen.blit(weapon_text, (s.SCREEN_WIDTH // 2 - 50, 100))
+    
     if current_stage.is_maintenance:
         portal = pygame.Rect(350, 250, 50, 50)
         pygame.draw.rect(screen, s.GREEN, portal)
@@ -84,9 +108,13 @@ while not loopFinished:
                 fade_out(screen)
                 fade_in(screen)
                 current_stage = Stage(stage_data[stage_index])
+                ui_manager.display_stage_ui(f"Stage {current_stage.stage_index} Start!")
                 enemies = []
             else:
-                print("Game Clear")
+                ui_manager.display_stage_ui("Congratulation!! Game Clear!")
+                ui_manager.display_stage_ui("Made by LSH")
+                ui_manager.display_stage_ui("Press ESC to QUIT", duration=999999)
+                game_clear = True
 
     for enemy in enemies:
         enemy.move()
@@ -94,16 +122,25 @@ while not loopFinished:
         enemy.update_bullets()
         enemy.draw(screen)
     
-    if current_stage.is_finished() and not enemies:
+    if current_stage.is_finished() and not enemies and not game_clear:
         if stage_index < (len(stage_data) - 1):
-            print("Stage", current_stage.stage_index, "Clear")
+            ui_manager.display_stage_ui(f"Stage {current_stage.stage_index} Clear!!")
             stage_index += 1
             fade_out(screen)
             fade_in(screen)
             current_stage = Stage(stage_data[stage_index])
+            if current_stage.is_maintenance:
+                ui_manager.display_stage_ui("Maintenance Stage")
+            else:
+                ui_manager.display_stage_ui(f"Stage {current_stage.stage_index} Start!")
             enemies = []
         else:
-            print("Game Clear")
+            ui_manager.display_stage_ui("THE END")
+            ui_manager.display_stage_ui("Congratulation! Game Clear!")
+            ui_manager.display_stage_ui("Made by LSH")
+            ui_manager.display_stage_ui("Press ESC to QUIT", duration=2000)
+            game_clear = True
+            
 
     pygame.display.flip()
     clock.tick(60)
