@@ -7,13 +7,15 @@ class Stage:
         self.stage_index = stage_data[1]
         self.is_maintenance = stage_data[2]
 
-    def update(self):
+    def update(self, enemies):
         if not self.is_maintenance:
             if self.current_wave_index < len(self.waves):
                 current_wave = self.waves[self.current_wave_index]
                 new_enemy = current_wave.update()
-                if current_wave.is_finished():
+                if current_wave.is_finished(enemies):
                     self.current_wave_index += 1
+                    if self.current_wave_index < len(self.waves):
+                        self.waves[self.current_wave_index].new_wave_start()
                 return new_enemy
         return None
     

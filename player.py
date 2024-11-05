@@ -2,6 +2,7 @@ import pygame
 import settings as s
 from bullet import Bullet
 from weapon import *
+from collision_detection import *
 
 class Player:
     def __init__(self, x, y):
@@ -17,6 +18,9 @@ class Player:
         self.bullets = []
 
         self.hp = 3
+
+        self.last_hit_time = 0
+        self.invincibility_duration = 2000
 
     def move(self):
         self.x_vel = 0
@@ -113,7 +117,7 @@ class Player:
     def check_bullet_collision(self, enemies):
         for bullet in self.bullets:
             for enemy in enemies:
-                if bullet.rect.colliderect(enemy.rect):
+                if aabb(bullet.rect, enemy.rect):
                     if not enemy.take_damage(bullet.damage):
                         enemies.remove(enemy)
                     self.bullets.remove(bullet)
@@ -122,13 +126,17 @@ class Player:
     def check_enemy_bullet_collision(self, enemies):
         for enemy in enemies:
             for bullet in enemy.bullets:
-                if self.rect.colliderect(bullet.rect):  # 플레이어와 총알이 충돌하면
-                    self.take_damage()  # 플레이어의 체력 감소
-                    enemy.bullets.remove(bullet)  # 충돌한 총알 제거
-                    break  # 한 번 충돌한 후 종료
+                if aabb(self.rect, bullet.rect):  
+                    self.take_damage()  
+                    enemy.bullets.remove(bullet) 
+                    break 
 
     def take_damage(self):
-        self.hp -= 1
+        current_time = pygame.time.get_ticks()
+        if current_time - self.last_hit_time > self.invincibility_duration:
+            self.hp -= 1
+            self.last_hit_time = current_time
+             
         if self.hp <= 0:
             print("Game Over")
 

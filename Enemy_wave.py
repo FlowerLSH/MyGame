@@ -18,9 +18,22 @@ class Wave:
                     new_enemy = MediumEnemy(enemy_info["x"], enemy_info["y"])
                 elif enemy_info["type"] == "large":
                     new_enemy = LargeEnemy(enemy_info["x"], enemy_info["y"])
+                elif enemy_info["type"] == "homing_small":
+                    new_enemy = HomingEnemySmall(enemy_info["x"], enemy_info["y"])
+                elif enemy_info["type"] == "homing_medium":
+                    new_enemy = HomingEnemyMedium(enemy_info["x"], enemy_info["y"])
+                elif enemy_info["type"] == "homing_large":
+                    new_enemy = HomingEnemyLarge(enemy_info["x"], enemy_info["y"])
+                elif enemy_info["type"] == "elite":
+                    new_enemy = EliteEnemy(enemy_info["x"], enemy_info["y"])
+                elif enemy_info["type"] == "boss":
+                    new_enemy = BossEnemy(enemy_info["x"], enemy_info["y"])
                 self.spawned_enemies.append(enemy_info)
                 return new_enemy
         return None
     
-    def is_finished(self):
-        return len(self.spawned_enemies) == len(self.enemy_data)
+    def is_finished(self, enemies):
+        return len(self.spawned_enemies) == len(self.enemy_data) and not enemies
+    
+    def new_wave_start(self):
+        self.start_time = time.time()

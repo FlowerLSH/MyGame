@@ -6,6 +6,7 @@ from stage import Stage
 from stage_data import *
 from ui_manager import UIManager
 import time
+from collision_detection import *
 
 def fade_out(screen, speed=5):
     fade_surface = pygame.Surface(screen.get_size())
@@ -46,10 +47,10 @@ loopFinished = False
 clock = pygame.time.Clock()
 
 game_clear = False
-
+"""
 if stage_index == 0 and not ui_manager.ui_active:
     ui_manager.display_stage_ui(f"Stage {current_stage.stage_index} Start!")
-
+"""
 
 while not loopFinished:
     if ui_manager.update():
@@ -86,7 +87,7 @@ while not loopFinished:
     player.check_bullet_collision(enemies)
     player.check_enemy_bullet_collision(enemies)
 
-    new_enemy = current_stage.update()
+    new_enemy = current_stage.update(enemies)
     if new_enemy:
         enemies.append(new_enemy)
 
@@ -102,7 +103,7 @@ while not loopFinished:
         portal = pygame.Rect(350, 250, 50, 50)
         pygame.draw.rect(screen, s.GREEN, portal)
 
-        if player.rect.colliderect(portal):
+        if aabb(player.rect, portal):
             if stage_index < (len(stage_data) - 1):
                 stage_index += 1
                 fade_out(screen)
@@ -111,14 +112,15 @@ while not loopFinished:
                 ui_manager.display_stage_ui(f"Stage {current_stage.stage_index} Start!")
                 enemies = []
             else:
+                ui_manager.display_stage_ui("THE END")
                 ui_manager.display_stage_ui("Congratulation!! Game Clear!")
                 ui_manager.display_stage_ui("Made by LSH")
-                ui_manager.display_stage_ui("Press ESC to QUIT", duration=999999)
+                ui_manager.display_stage_ui("Press ESC to QUIT", duration=2000)
                 game_clear = True
 
     for enemy in enemies:
         enemy.move()
-        enemy.fire_bullet()
+        enemy.fire_bullet(player.rect.center)
         enemy.update_bullets()
         enemy.draw(screen)
     
