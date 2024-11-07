@@ -208,3 +208,24 @@ class BossEnemy(Enemy):
         rad = math.radians(angle)
         cos_a, sin_a = math.cos(rad), math.sin(rad)
         return vector[0] * cos_a - vector[1] * sin_a, vector[0] * sin_a + vector[1] * cos_a
+    
+    def draw(self, screen):
+        width, height = 1000, 30
+        hp_ratio = self.hp / self.maxhp
+
+        bar_x = (s.SCREEN_WIDTH - width) // 2
+        bar_y = s.SCREEN_HEIGHT - height
+
+        red_bar_width = int(hp_ratio * width)
+
+        pygame.draw.rect(screen, s.GRAY, (bar_x, bar_y, width, height))
+        
+        pygame.draw.rect(screen, s.RED, (bar_x, bar_y, red_bar_width, height))
+
+        font = pygame.font.Font(None, 36)
+        text_surface = font.render("Boss", True, s.WHITE)
+        screen.blit(text_surface, (bar_x, bar_y - 30))
+
+        pygame.draw.rect(screen, s.RED, self.rect)
+        for bullet in self.bullets:
+            bullet.draw(screen)

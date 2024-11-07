@@ -152,7 +152,7 @@ class Player:
 
         # 무기 UI
         font = pygame.font.Font(None, 24)
-        weapon_text = font.render(f"Weapon : {self.weapon.__class__.__name__.upper()}", True, s.BLACK)
+        weapon_text = font.render(f"Weapon : {self.weapon.__class__.__name__.upper()}", True, s.WHITE)
         screen.blit(weapon_text, (10, 40))
 
         # 대쉬 쿨타임 UI

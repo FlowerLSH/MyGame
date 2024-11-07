@@ -3,9 +3,11 @@ import settings as s
 
 class EnemyBullet:
     def __init__(self, x, y, speed, direction = (-1,0)):
-        self.rect = pygame.Rect(x, y, 5, 5)
+        self.rect = pygame.Rect(x, y, 10, 10)
         self.speed = speed
         self.direction = direction
+        self.image = pygame.image.load("asset/image/enemy_bullet.png")
+        self.image = pygame.transform.scale(self.image, (25, 25))
 
     def update(self):
         self.rect.x += self.direction[0] * self.speed
@@ -16,4 +18,4 @@ class EnemyBullet:
         return True
     
     def draw(self, screen):
-        pygame.draw.rect(screen, s.RED, self.rect)
+        screen.blit(self.image, self.rect.topleft)
