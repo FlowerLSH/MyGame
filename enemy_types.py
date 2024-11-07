@@ -1,5 +1,5 @@
 from enemy import *
-from enemy_bullet import EnemyBullet
+from enemy_bullet import *
 import math
 import pygame
 import random
@@ -69,16 +69,6 @@ class EliteEnemy(Enemy):
             self.bullets.append(bullet)
             self.last_targeted_shot_time = current_time
 
-    def calculate_direction(self, target_position):
-        dx, dy = target_position[0] - self.rect.centerx, target_position[1] - self.rect.centery
-        distance = math.sqrt(dx ** 2 + dy ** 2)
-        return dx / distance, dy / distance
-
-    def rotate_vector(self, vector, angle):
-        rad = math.radians(angle)
-        cos_a, sin_a = math.cos(rad), math.sin(rad)
-        return vector[0] * cos_a - vector[1] * sin_a, vector[0] * sin_a + vector[1] * cos_a
-
 
 
 
@@ -93,7 +83,7 @@ class BossEnemy(Enemy):
     def __init__(self, x, y):
         super().__init__(x, y, hp = 1000, speed=0.8, size_x=100, size_y=100, fire_rate=500, bullet_speed=5)
         self.phase = 1
-        self.pattern_num = 2
+        self.pattern_num = 4
         self.current_pattern = 0
         self.maxhp = 1000
 
@@ -105,12 +95,23 @@ class BossEnemy(Enemy):
         self.targeted_fire_rate = 700
         self.last_spread_shot_time = 0
         self.last_targeted_shot_time = 0
-        self.barrage_duration = 7000  # 탄막 발사 지속 시간 (밀리초)
+        self.barrage_duration = 7000 
 
         self.fast_fire_rate = 25
         self.last_fast_fire_time = 0
-
         self.fast_target_shot_duration = 3000
+
+        self.default_fire_rate = 200
+        self.last_default_fire_shot_time = 0
+        self.default_shot_duration = 5000
+        self.default_angle = [20, 15, 10, 5, 0, -5, -10, -15, -20]
+        self.default_flag = 0
+
+        self.missile_fire_rate = 1000
+        self.last_missile_shot_time = 0
+        self.missile_duration = 10000
+        self.missile_count = 0
+
     
     def take_damage(self, damage):
         self.hp -= damage
@@ -138,11 +139,57 @@ class BossEnemy(Enemy):
                         self.bullet_speed = 5
                         return
                     self.fast_target_shot(player_position)
+                case 3:
+                    if current_time - self.check_time > self.default_shot_duration:
+                        self.check_time = current_time
+                        self.current_pattern = 0
+                        self.bullet_speed = 5
+                        return
+                    self.default_shot(player_position)
+                case 4:
+                    if current_time - self.check_time > self.default_shot_duration:
+                        self.check_time = current_time
+                        self.current_pattern = 0
+                        self.missile_count = 0
+                        return
+                    self.launch_missile(player_position)
         else:
             if current_time - self.check_time > 2500:
-                self.current_pattern = random.randint(2, self.pattern_num)
+                self.current_pattern = random.randint(4, self.pattern_num)
                 self.check_time = current_time
 
+    def launch_missile(self, player_position):
+        current_time = pygame.time.get_ticks()
+        if current_time - self.last_missile_shot_time >= self.missile_fire_rate and self.missile_count < 5:
+            direction = self.calculate_direction(player_position)
+            missile = Missile(self.rect.centerx, self.rect.centery, speed = self.bullet_speed, direction = direction, duration = 7000)
+            self.missiles.append(missile)
+            self.last_missile_shot_time = current_time
+            self.missile_count += 1
+        self.fire_targeted(player_position)
+
+
+    def default_shot(self, player_position):
+        self.bullet_speed = 9
+        if self.phase == 1:
+            None
+        else:
+            None
+        if self.default_flag == 0:
+            self.default_flag = 2.5
+        else:
+            self.default_flag = 0
+        current_time = pygame.time.get_ticks()
+        if current_time - self.last_default_fire_shot_time >= self.default_fire_rate:
+            for angle in self.default_angle:
+                direction = self.calculate_direction(player_position)
+                direction = self.rotate_vector(direction, angle + self.default_flag)
+
+                bullet = EnemyBullet(self.rect.topleft[0], self.rect.topleft[1], speed=self.bullet_speed, direction=direction)
+                self.bullets.append(bullet)
+                bullet = EnemyBullet(self.rect.bottomleft[0], self.rect.bottomleft[1], speed=self.bullet_speed, direction=direction)
+                self.bullets.append(bullet)
+            self.last_default_fire_shot_time = current_time
 
     def spread_shot(self, player_position):
         if self.phase == 1:
@@ -160,13 +207,12 @@ class BossEnemy(Enemy):
         self.fire_targeted_fastshot(player_position)
 
     def fire_spread(self, advanced = False):
-        """5갈래 방향으로 확산 발사"""
         current_time = pygame.time.get_ticks()
         if current_time - self.last_spread_shot_time >= self.spread_fire_rate:
             if advanced:
                 angles = [-30, -20, -5, 0, 5, 20, 30]
             else:
-                angles = [-40, -20, 0, 20, 40]  # 5갈래 각도
+                angles = [-40, -20, 0, 20, 40]
             for angle in angles:
                 direction = self.rotate_vector((-1, 0), angle)
                 if advanced:
@@ -199,15 +245,7 @@ class BossEnemy(Enemy):
             self.bullets.append(bullet)
             self.last_fast_fire_time = current_time
 
-    def calculate_direction(self, target_position):
-        dx, dy = target_position[0] - self.rect.centerx, target_position[1] - self.rect.centery
-        distance = math.sqrt(dx ** 2 + dy ** 2)
-        return dx / distance, dy / distance
-
-    def rotate_vector(self, vector, angle):
-        rad = math.radians(angle)
-        cos_a, sin_a = math.cos(rad), math.sin(rad)
-        return vector[0] * cos_a - vector[1] * sin_a, vector[0] * sin_a + vector[1] * cos_a
+    
     
     def draw(self, screen):
         width, height = 1000, 30
@@ -218,14 +256,16 @@ class BossEnemy(Enemy):
 
         red_bar_width = int(hp_ratio * width)
 
-        pygame.draw.rect(screen, s.GRAY, (bar_x, bar_y, width, height))
+        pygame.draw.rect(screen, s.GRAY, (bar_x, bar_y, width, height), 2)
         
         pygame.draw.rect(screen, s.RED, (bar_x, bar_y, red_bar_width, height))
 
         font = pygame.font.Font(None, 36)
-        text_surface = font.render("Boss", True, s.WHITE)
+        text_surface = font.render(str(len(self.missiles)), True, s.WHITE)
         screen.blit(text_surface, (bar_x, bar_y - 30))
 
         pygame.draw.rect(screen, s.RED, self.rect)
         for bullet in self.bullets:
             bullet.draw(screen)
+        for missile in self.missiles:
+            missile.draw(screen)

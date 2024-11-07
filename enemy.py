@@ -13,6 +13,7 @@ class Enemy:
         self.fire_rate = fire_rate
         self.last_shot_time = 0
         self.bullets = []
+        self.missiles = []
         self.bullet_direction = bullet_direction
         self.bullet_speed = bullet_speed
         self.move_direction = 1
@@ -46,6 +47,21 @@ class Enemy:
         pygame.draw.rect(screen, s.RED, self.rect)
         for bullet in self.bullets:
             bullet.draw(screen)
+        for missile in self.missiles:
+            missile.draw(screen)
+
+    def update_missiles(self, player_position):
+        self.missiles = [i for i in self.missiles if i.update(player_position)]
+
+    def calculate_direction(self, target_position):
+        dx, dy = target_position[0] - self.rect.centerx, target_position[1] - self.rect.centery
+        distance = math.sqrt(dx ** 2 + dy ** 2)
+        return dx / distance, dy / distance
+
+    def rotate_vector(self, vector, angle):
+        rad = math.radians(angle)
+        cos_a, sin_a = math.cos(rad), math.sin(rad)
+        return vector[0] * cos_a - vector[1] * sin_a, vector[0] * sin_a + vector[1] * cos_a
 
 class HomingEnemy(Enemy):
     def __init__(self, x, y, hp, speed, size_x, size_y, fire_rate, bullet_speed=5):

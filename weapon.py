@@ -12,14 +12,14 @@ class Weapon:
         current_time = pygame.time.get_ticks()
         return current_time - self.last_shot_time
     
-    def set_image(self, directory):
+    def set_image(self, directory, size_x = 5, size_y = 5):
         image = pygame.image.load(directory)
-        image = pygame.transform.scale(image, (40, 40))
+        image = pygame.transform.scale(image, (size_x, size_y))
         return image
     
 class Pistol(Weapon):
     def fire(self, x, y, bullets):
-        image = self.set_image("asset/image/pistol_bullet.png")
+        image = self.set_image("asset/image/pistol_bullet2.png")
         bullets.append(Bullet(x, y, s.PISTOL_BULLET_SPEED, s.PISTOL_DAMAGE, source=image))
 
 class MachineGun(Weapon):
@@ -31,12 +31,12 @@ class MachineGun(Weapon):
 
 class Shotgun(Weapon):
     def fire(self, x, y, bullets):
-        image = self.set_image("asset/image/pistol_bullet.png")
+        image = self.set_image("asset/image/pistol_bullet2.png", 20, 20)
         if self.can_fire() > s.SHOTGUN_COOLDOWN:
             angle_increment = s.SHOTGUN_SPREAD_ANGLE / (s.SHOTGUN_BULLET_COUNT - 1)
             start_angle = -s.SHOTGUN_SPREAD_ANGLE / 2
             for i in range(s.SHOTGUN_BULLET_COUNT):
                 angle = math.radians(start_angle + i + angle_increment)
                 direction = (math.cos(angle), math.sin(angle))
-                bullets.append(Bullet(x, y, s.SHOTGUN_BULLET_SPEED, s.SHOTGUN_DAMAGE, direction, s.SHOTGUN_RANGE, source=image))
+                bullets.append(Bullet(x, y, s.SHOTGUN_BULLET_SPEED, s.SHOTGUN_DAMAGE, direction, s.SHOTGUN_RANGE, source=image, size_x=20, size_y=20))
             self.last_shot_time = pygame.time.get_ticks()

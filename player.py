@@ -117,7 +117,7 @@ class Player:
     def check_bullet_collision(self, enemies):
         for bullet in self.bullets:
             for enemy in enemies:
-                if aabb(bullet.rect, enemy.rect):
+                if obb(bullet.rect, enemy.rect, 0, 0):
                     if not enemy.take_damage(bullet.damage):
                         enemies.remove(enemy)
                     self.bullets.remove(bullet)
@@ -126,10 +126,16 @@ class Player:
     def check_enemy_bullet_collision(self, enemies):
         for enemy in enemies:
             for bullet in enemy.bullets:
-                if aabb(self.rect, bullet.rect):  
+                if obb(self.rect, bullet.rect, 0, bullet.angle):  
                     self.take_damage()  
                     enemy.bullets.remove(bullet) 
                     break 
+            
+            for missile in enemy.missiles:
+                if obb(self.rect, missile.rect, 0, missile.angle):
+                    self.take_damage()
+                    enemy.missiles.remove(missile)
+                    break
 
     def take_damage(self):
         current_time = pygame.time.get_ticks()

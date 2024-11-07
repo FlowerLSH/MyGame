@@ -2,7 +2,7 @@ import pygame
 import settings as s
 
 class Bullet:
-    def __init__(self, x, y, speed, damage, direction = (1, 0), max_range = None, color = s.BLACK, source = None):
+    def __init__(self, x, y, speed, damage, direction = (1, 0), max_range = None, color = s.BLACK, source = None, size_x = 5, size_y = 5):
         self.rect = pygame.Rect(x, y, 5, 5)
         self.speed = speed
         self.damage = damage

@@ -138,6 +138,7 @@ while not loopFinished:
         enemy.move()
         enemy.fire_bullet(player.rect.center)
         enemy.update_bullets()
+        enemy.update_missiles(player.rect.center)
         enemy.draw(screen)
     
     if current_stage.is_finished() and not enemies and not game_clear:
