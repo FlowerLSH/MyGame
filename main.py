@@ -46,6 +46,13 @@ ui_manager = UIManager(screen, font)
 loopFinished = False
 clock = pygame.time.Clock()
 
+background_image = pygame.image.load("asset/image/space_background.jpg")
+background_image = pygame.transform.scale(background_image, (s.SCREEN_WIDTH, s.SCREEN_HEIGHT))
+
+flipped_background_image = pygame.transform.flip(background_image, True, False)
+
+background_location = 0
+
 game_clear = False
 """
 if stage_index == 0 and not ui_manager.ui_active:
@@ -92,6 +99,15 @@ while not loopFinished:
         enemies.append(new_enemy)
 
     screen.fill(s.WHITE)
+
+    background_location -= 3
+    if background_location < -(s.SCREEN_WIDTH * 2):
+        background_location = 0
+
+    screen.blit(background_image, (background_location, 0))
+    screen.blit(flipped_background_image, (background_location + s.SCREEN_WIDTH, 0))
+    screen.blit(background_image, (background_location + s.SCREEN_WIDTH * 2, 0))
+
     player.draw(screen)
 
     if game_clear:

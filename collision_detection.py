@@ -18,7 +18,7 @@ def get_rect_vertices(rect, angle):
 
 def get_axes(vertices):
     axes = []
-    for i in range(2):
+    for i in range(4):
         p1 = vertices[i]
         p2 = vertices[(i + 1) % len(vertices)]
         edge = (p2[0] - p1[0], p2[1] - p1[1])
@@ -45,10 +45,12 @@ def obb(rect1, rect2, angle1, angle2):
     T = (rect2.centerx - rect1.centerx, rect2.centery - rect1.centery)
 
     for axis in axes1 + axes2:
+        proj1 = max(dot(vertex, axis) for vertex in vertices1) - min(dot(vertex, axis) for vertex in vertices1)
+        proj2 = max(dot(vertex, axis) for vertex in vertices2) - min(dot(vertex, axis) for vertex in vertices2)
+        
         t_proj = abs(dot(T, axis))
-        proj1 = sum(abs(dot(vertex, axis)) for vertex in vertices1) / 4
-        proj2 = sum(abs(dot(vertex, axis)) for vertex in vertices2) / 4
-        if t_proj > proj1 + proj2:
+
+        if t_proj > (proj1 + proj2) / 2:
             return False
 
     return True
@@ -57,7 +59,7 @@ def get_intersection_point(u1, u2, v1, v2):
     r1 = (u2[0] - u1[0], u2[1] - u1[1])
     r2 = (v2[0] - v1[0], v2[1] - v1[1])
 
-    det = r1[0] * r2[1] - r1[1] * r[0]
+    det = r1[0] * r2[1] - r1[1] * r2[0]
     if det == 0:
         return None
     

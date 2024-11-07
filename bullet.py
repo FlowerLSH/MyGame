@@ -10,6 +10,7 @@ class Bullet:
         self.start_x = x
         self.max_range = max_range
         self.color = color
+        self.image = None
 
     def update(self):
         self.rect.x += self.direction[0] * self.speed
