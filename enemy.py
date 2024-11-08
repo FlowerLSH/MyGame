@@ -14,6 +14,7 @@ class Enemy:
         self.last_shot_time = 0
         self.bullets = []
         self.missiles = []
+        self.meteors = []
         self.bullet_direction = bullet_direction
         self.bullet_speed = bullet_speed
         self.move_direction = 1
@@ -52,6 +53,9 @@ class Enemy:
 
     def update_missiles(self, player_position):
         self.missiles = [i for i in self.missiles if i.update(player_position)]
+
+    def update_meteors(self, player_position):
+        self.meteors = [i for i in self.meteors if i.update(player_position)]
 
     def calculate_direction(self, target_position):
         dx, dy = target_position[0] - self.rect.centerx, target_position[1] - self.rect.centery

@@ -1,6 +1,7 @@
 import pygame
 import settings as s
 import math
+import random
 
 class EnemyBullet:
     def __init__(self, x, y, speed, direction = (-1,0)):
@@ -87,4 +88,89 @@ class Missile:
         rotated_rect = rotated_image.get_rect(center=self.rect.center)  # 중심을 self.rect.center에 맞춤
         screen.blit(rotated_image, rotated_rect.topleft)
 
+
+class Meteor:
+    def __init__(self):
+        self.position = pygame.Vector2(s.SCREEN_WIDTH, random.randint(0, s.SCREEN_HEIGHT))
+        self.hp = s.METEORHP
+        self.speed = 2
         
+        self.vertex_count = random.randint(5, 8)
+        self.radius = random.randint(20, 50)
+        self.vertices = self.generate_random_shape()
+        
+        self.direction = pygame.Vector2(-1, 0)
+        self.angle = math.degrees(math.atan2(self.direction[1], self.direction[0]))
+        self.rotated_vertices = []
+
+    def generate_random_shape(self):
+        vertices = []
+        angle_step = 360 / self.vertex_count
+        for i in range(self.vertex_count):
+            angle = math.radians(i * angle_step + random.uniform(-15, 15))
+            distance = self.radius + random.uniform(-5, 5)
+            x = math.cos(angle) * distance
+            y = math.sin(angle) * distance
+            vertices.append((x, y))
+        return vertices
+
+    def calculate_direction(self, target_position):
+        dx, dy = target_position[0] - self.position[0], target_position[1] - self.position[1]
+        distance = math.sqrt(dx ** 2 + dy ** 2)
+        return pygame.Vector2(dx / distance, dy / distance)
+
+    def update(self, player_position):
+        self.direction = self.calculate_direction(player_position)
+
+        self.position += self.direction * self.speed
+
+
+        self.rotated_vertices = [
+            (self.position.x + x, self.position.y + y)
+            for x, y in self.vertices
+        ]
+        if self.hp <= 0:
+            return False
+        return True
+
+    def take_damage(self, damage):
+        self.hp -= damage
+        if self.hp <= 0:
+            return False
+        return True
+
+    def get_distance(self, target_position):
+        dx, dy = target_position[0] - self.position[0], target_position[1] - self.position[1]
+        distance = math.sqrt(dx ** 2 + dy ** 2)
+        return distance
+
+    def get_edges(self):
+        edges = []
+        for i in range(len(self.rotated_vertices)):
+            start = self.rotated_vertices[i]
+            end = self.rotated_vertices[(i + 1) % len(self.rotated_vertices)] 
+            edges.append((start, end))
+        return edges
+    
+    def get_axes(self):
+        axes = []
+        for i in range(len(self.vertices)):
+            p1 = self.vertices[i]
+            p2 = self.vertices[(i + 1) % len(self.vertices)]
+            edge = (p2[0] - p1[0], p2[1] - p1[1])
+            normal = (-edge[1], edge[0])
+            length = math.sqrt(normal[0] ** 2 + normal[1] ** 2)
+            axes.append((normal[0] / length, normal[1] / length))
+        return axes
+    
+    def project_polygon(self, axis):
+        min_proj = max_proj = self.rotated_vertices[0][0] * axis[0] + self.rotated_vertices[0][1] * axis[1]
+        for v in self.rotated_vertices:
+            projection = v[0] * axis[0] + v[1] * axis[1]
+            min_proj = min(min_proj, projection)
+            max_proj = max(max_proj, projection)
+        return min_proj, max_proj
+
+    def draw(self, screen):
+        pygame.draw.polygon(screen, s.GREEN, self.rotated_vertices)
+

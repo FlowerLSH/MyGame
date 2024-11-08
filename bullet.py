@@ -20,5 +20,21 @@ class Bullet:
             return False
         return True
     
+    def project_polygon(self, axis):
+        corners = [self.rect.topleft, self.rect.topright, self.rect.bottomright, self.rect.bottomleft]
+        min_proj = max_proj = corners[0][0] * axis[0] + corners[0][1] * axis[1]
+        for corner in corners:
+            projection = corner[0] * axis[0] + corner[1] * axis[1]
+            min_proj = min(min_proj, projection)
+            max_proj = max(max_proj, projection)
+        return min_proj, max_proj
+    
+    def get_axes(self):
+        return [(1, 0), (0, 1), (-1, 0), (0, -1)]
+    
+    def get_bullet_edges(self):
+        return [(self.rect.topleft,self.rect.topright),
+                (self.rect.bottomright, self.rect.bottomleft)]
+    
     def draw(self, screen):
         screen.blit(self.image, self.rect.topleft)

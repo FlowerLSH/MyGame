@@ -17,7 +17,13 @@ class Player:
         self.weapon = Pistol()
         self.bullets = []
 
+        self.attack_bonus = 1.0
+
         self.hp = 3
+        self.maxhp = 3
+
+        self.special_attack = 1
+        self.max_special_attack = 1
 
         self.last_hit_time = 0
         self.invincibility_duration = 2000
@@ -114,14 +120,42 @@ class Player:
     def update_bullets(self):
         self.bullets = [i for i in self.bullets if i.update()]
 
+    def project_polygon(self, axis):
+        corners = [self.rect.topleft, self.rect.topright, self.rect.bottomright, self.rect.bottomleft]
+        min_proj = max_proj = corners[0][0] * axis[0] + corners[0][1] * axis[1]
+        for corner in corners:
+            projection = corner[0] * axis[0] + corner[1] * axis[1]
+            min_proj = min(min_proj, projection)
+            max_proj = max(max_proj, projection)
+        return min_proj, max_proj
+    
+    def get_axes(self):
+        return [(1, 0), (0, 1), (-1, 0), (0, -1)]
+
+    def player_position_reset(self):
+        self.rect.x = s.SCREEN_WIDTH * 0.25
+        self.rect.y = s.SCREEN_HEIGHT // 2
+
     def check_bullet_collision(self, enemies):
         for bullet in self.bullets:
             for enemy in enemies:
                 if obb(bullet.rect, enemy.rect, 0, 0):
-                    if not enemy.take_damage(bullet.damage):
+                    if not enemy.take_damage(bullet.damage * self.attack_bonus):
                         enemies.remove(enemy)
                     self.bullets.remove(bullet)
                     break
+                
+                for meteo in enemy.meteors:
+                    if SAT_detect_collision(bullet, meteo):
+                        if not meteo.take_damage(bullet.damage * self.attack_bonus):
+                            enemy.meteors.remove(meteo)
+                        self.bullets.remove(bullet)
+                        break
+                    
+
+            
+            
+            
 
     def check_enemy_bullet_collision(self, enemies):
         for enemy in enemies:
@@ -136,6 +170,23 @@ class Player:
                     self.take_damage()
                     enemy.missiles.remove(missile)
                     break
+            
+            
+            for meteo in enemy.meteors:
+                if SAT_detect_collision(meteo, self):
+                    
+                    self.take_damage()
+                    enemy.meteors.remove(meteo)
+                    break
+
+            
+    def get_player_edges(self):
+        return [(self.rect.topleft,self.rect.topright),
+                (self.rect.topright, self.rect.bottomright),
+                (self.rect.bottomright, self.rect.bottomleft),
+                (self.rect.bottomleft, self.rect.topleft)]
+    
+    
 
     def take_damage(self):
         current_time = pygame.time.get_ticks()

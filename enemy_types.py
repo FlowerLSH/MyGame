@@ -83,13 +83,17 @@ class BossEnemy(Enemy):
     def __init__(self, x, y):
         super().__init__(x, y, hp = 1000, speed=0.8, size_x=100, size_y=100, fire_rate=500, bullet_speed=5)
         self.phase = 1
-        self.pattern_num = 4
+        self.pattern_num = 0
         self.current_pattern = 0
         self.maxhp = 1000
 
         
         self.check_time = 0
 
+        self.meteo_count_phase1 = 5
+        self.meteo_count_phase2 = 8
+        self.meteo_rate = 10000
+        self.last_meteo_spawn_time = 0
 
         self.spread_fire_rate = 500
         self.targeted_fire_rate = 700
@@ -123,6 +127,12 @@ class BossEnemy(Enemy):
 
     def fire_bullet(self, player_position = None):
         current_time = pygame.time.get_ticks()
+        if current_time - self.last_meteo_spawn_time > self.meteo_rate:
+            if self.phase == 1:
+                self.spawn_meteor(self.meteo_count_phase1)
+            else:
+                self.spawn_meteor(self.meteo_count_phase2)
+            self.last_meteo_spawn_time = current_time
         if self.current_pattern:
             match self.current_pattern:
                 case 1:
@@ -155,8 +165,14 @@ class BossEnemy(Enemy):
                     self.launch_missile(player_position)
         else:
             if current_time - self.check_time > 2500:
-                self.current_pattern = random.randint(4, self.pattern_num)
+                self.current_pattern = random.randint(0, self.pattern_num)
                 self.check_time = current_time
+
+    def spawn_meteor(self, count):
+        for i in range(count):
+            if len(self.meteors) < 10:
+                meteor = Meteor()
+                self.meteors.append(meteor)
 
     def launch_missile(self, player_position):
         current_time = pygame.time.get_ticks()
@@ -172,9 +188,9 @@ class BossEnemy(Enemy):
     def default_shot(self, player_position):
         self.bullet_speed = 9
         if self.phase == 1:
-            None
+            self.bullet_speed = 8
         else:
-            None
+            self.bullet_speed = 10.5
         if self.default_flag == 0:
             self.default_flag = 2.5
         else:
@@ -261,7 +277,7 @@ class BossEnemy(Enemy):
         pygame.draw.rect(screen, s.RED, (bar_x, bar_y, red_bar_width, height))
 
         font = pygame.font.Font(None, 36)
-        text_surface = font.render(str(len(self.missiles)), True, s.WHITE)
+        text_surface = font.render(str(len(self.meteors)), True, s.WHITE)
         screen.blit(text_surface, (bar_x, bar_y - 30))
 
         pygame.draw.rect(screen, s.RED, self.rect)
@@ -269,3 +285,5 @@ class BossEnemy(Enemy):
             bullet.draw(screen)
         for missile in self.missiles:
             missile.draw(screen)
+        for meteo in self.meteors:
+            meteo.draw(screen)

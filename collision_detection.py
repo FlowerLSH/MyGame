@@ -84,3 +84,17 @@ def segments_intersect(s1, s2):
                 distance(u2, (x, y)) <= d1 and
                 distance(v1, (x, y)) <= d2 and
                 distance(v2, (x, y)) <= d2)
+
+def SAT_detect_collision(polygon1, polygon2):
+    
+    axes1 = polygon1.get_axes()
+    axes2 = polygon2.get_axes()
+
+    for axis in axes1 + axes2:
+        poly1_min, poly1_max = polygon1.project_polygon(axis)
+        poly2_min, poly2_max = polygon2.project_polygon(axis)
+
+        if poly1_max <= poly2_min or poly2_max <= poly1_min:
+            return False
+    return True
+    

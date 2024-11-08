@@ -33,7 +33,7 @@ pygame.init()
 screen = pygame.display.set_mode((s.SCREEN_WIDTH, s.SCREEN_HEIGHT))
 pygame.display.set_caption("SWCON Project")
 
-player = Player(s.SCREEN_WIDTH // 2, s.SCREEN_HEIGHT // 2)
+player = Player(s.SCREEN_WIDTH * 0.25, s.SCREEN_HEIGHT // 2)
 
 stage_index = 0
 
@@ -54,6 +54,8 @@ flipped_background_image = pygame.transform.flip(background_image, True, False)
 background_location = 0
 
 game_clear = False
+
+chosen = False
 """
 if stage_index == 0 and not ui_manager.ui_active:
     ui_manager.display_stage_ui(f"Stage {current_stage.stage_index} Start!")
@@ -116,14 +118,37 @@ while not loopFinished:
         screen.blit(weapon_text, (s.SCREEN_WIDTH // 2 - 50, 100))
     
     if current_stage.is_maintenance:
-        portal = pygame.Rect(350, 250, 50, 50)
+        font = pygame.font.Font(None, 24)
+        portal = pygame.Rect(s.SCREEN_WIDTH * 0.9, s.SCREEN_HEIGHT // 2, 50, 50)
+        text_surface = font.render("NEXT STAGE", True, s.WHITE)
+        text_rect = text_surface.get_rect(midbottom=(portal.centerx, portal.top - 5))
+        screen.blit(text_surface, text_rect)
+        player.hp = player.maxhp
+        player.special_attack = player.max_special_attack
         pygame.draw.rect(screen, s.GREEN, portal)
+                
+        if not chosen:
+            portal1 = pygame.Rect(s.SCREEN_WIDTH * 0.7, s.SCREEN_HEIGHT * 0.25, 50, 50)
+            portal2 = pygame.Rect(s.SCREEN_WIDTH * 0.7, s.SCREEN_HEIGHT * 0.5, 50, 50)
+            portal3 = pygame.Rect(s.SCREEN_WIDTH * 0.7, s.SCREEN_HEIGHT * 0.75, 50, 50)
+            portal_texts = ["Damage + 10%", "MaxHP + 1", "SpecialATTCK + 1"]
+            text_surfaces = [font.render(text, True, s.WHITE) for text in portal_texts]
+            text_rects = [text_surface.get_rect(midbottom=(portal.centerx, portal.top - 5))
+                          for text_surface, portal in zip(text_surfaces , [portal1, portal2, portal3])]
+            for text_surface, text_rect in zip(text_surfaces, text_rects):
+                    screen.blit(text_surface, text_rect)
+            pygame.draw.rect(screen, s.GREEN, portal1)
+            pygame.draw.rect(screen, s.GREEN, portal2)
+            pygame.draw.rect(screen, s.GREEN, portal3)
+            
 
         if aabb(player.rect, portal):
             if stage_index < (len(stage_data) - 1):
                 stage_index += 1
                 fade_out(screen)
                 fade_in(screen)
+                chosen = False
+                player.player_position_reset()
                 current_stage = Stage(stage_data[stage_index])
                 ui_manager.display_stage_ui(f"Stage {current_stage.stage_index} Start!")
                 enemies = []
@@ -133,12 +158,37 @@ while not loopFinished:
                 ui_manager.display_stage_ui("Made by LSH")
                 ui_manager.display_stage_ui("Press ESC to QUIT", duration=2000)
                 game_clear = True
+                chosen = False
+
+        elif aabb(player.rect, portal1) and not chosen:
+            chosen = True
+            player.attack_bonus += 0.1
+            text_surface = font.render("Damage + 10%", True, s.WHITE)
+            text_rect = text_surface.get_rect(center=(screen.get_width() / 2, screen.get_height() / 4))
+            screen.blit(text_surface, text_rect)
+            
+        elif aabb(player.rect, portal2) and not chosen:
+            chosen = True
+            player.maxhp += 1
+            player.hp = player.maxhp
+            text_surface = font.render("MaxHP + 1", True, s.WHITE)
+            text_rect = text_surface.get_rect(center=(screen.get_width() / 2, screen.get_height() / 4))
+            screen.blit(text_surface, text_rect)
+
+        elif aabb(player.rect, portal3) and not chosen:
+            chosen = True
+            player.max_special_attack += 1
+            player.special_attack = player.max_special_attack
+            text_surface = font.render("SpecialATTCK + 1", True, s.WHITE)
+            text_rect = text_surface.get_rect(center=(screen.get_width() / 2, screen.get_height() / 4))
+            screen.blit(text_surface, text_rect)
 
     for enemy in enemies:
         enemy.move()
         enemy.fire_bullet(player.rect.center)
         enemy.update_bullets()
         enemy.update_missiles(player.rect.center)
+        enemy.update_meteors(player.rect.center)
         enemy.draw(screen)
     
     if current_stage.is_finished() and not enemies and not game_clear:
@@ -148,6 +198,8 @@ while not loopFinished:
             fade_out(screen)
             fade_in(screen)
             current_stage = Stage(stage_data[stage_index])
+            player.bullets = []
+            player.player_position_reset()
             if current_stage.is_maintenance:
                 ui_manager.display_stage_ui("Maintenance Stage")
             else:

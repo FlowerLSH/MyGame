@@ -24,7 +24,7 @@ class Pistol(Weapon):
 
 class MachineGun(Weapon):
     def fire(self, x, y, bullets):
-        image = self.set_image("asset/image/machinegun_bullet2.png")
+        image = self.set_image("asset/image/machinegun_bullet2.png", 40, 40)
         if self.can_fire() > s.MACHINEGUN_FIRE_RATE:
             bullets.append(Bullet(x, y, s.MACHINEGUN_BULLET_SPEED, s.MACHINEGUN_DAMAGE, source=image))
             self.last_shot_time = pygame.time.get_ticks()

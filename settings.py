@@ -41,3 +41,5 @@ BLACK        = (  0,   0,   0)
 NEAR_BLACK    = ( 19,  15,  48)
 COMBLUE      = (233, 232, 255)
 GOLD         = (255, 215,   0)
+
+METEORHP = 30

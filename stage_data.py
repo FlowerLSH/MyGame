@@ -30,4 +30,4 @@ stage_2_data = [[
 
 maintenance_stage = [[], 0, True]
 
-stage_data = [stage_1_data, maintenance_stage, stage_2_data, ]
+stage_data = [maintenance_stage, stage_1_data, maintenance_stage, stage_2_data, ]
