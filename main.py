@@ -81,6 +81,11 @@ while not loopFinished:
                 if player.is_pistol():
                     player.attack()
 
+            elif event.key == pygame.K_c:
+                if player.special_attack_count > 0:
+                    player.make_special_attack()
+                    player.special_attack_count -= 1
+
             elif event.key == pygame.K_ESCAPE:
                 if game_clear:
                     loopFinished = True
@@ -95,6 +100,8 @@ while not loopFinished:
     player.update_bullets()
     player.check_bullet_collision(enemies)
     player.check_enemy_bullet_collision(enemies)
+    player.check_special_attack_collision(enemies)
+    player.update_specialAttack()
 
     new_enemy = current_stage.update(enemies)
     if new_enemy:
@@ -124,7 +131,7 @@ while not loopFinished:
         text_rect = text_surface.get_rect(midbottom=(portal.centerx, portal.top - 5))
         screen.blit(text_surface, text_rect)
         player.hp = player.maxhp
-        player.special_attack = player.max_special_attack
+        player.special_attack_count = player.max_special_attack_count
         pygame.draw.rect(screen, s.GREEN, portal)
                 
         if not chosen:
@@ -177,8 +184,8 @@ while not loopFinished:
 
         elif aabb(player.rect, portal3) and not chosen:
             chosen = True
-            player.max_special_attack += 1
-            player.special_attack = player.max_special_attack
+            player.max_special_attack_count += 1
+            player.special_attack_count = player.max_special_attack_count
             text_surface = font.render("SpecialATTCK + 1", True, s.WHITE)
             text_rect = text_surface.get_rect(center=(screen.get_width() / 2, screen.get_height() / 4))
             screen.blit(text_surface, text_rect)

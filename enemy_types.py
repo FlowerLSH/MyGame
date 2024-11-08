@@ -83,7 +83,7 @@ class BossEnemy(Enemy):
     def __init__(self, x, y):
         super().__init__(x, y, hp = 1000, speed=0.8, size_x=100, size_y=100, fire_rate=500, bullet_speed=5)
         self.phase = 1
-        self.pattern_num = 0
+        self.pattern_num = 3
         self.current_pattern = 0
         self.maxhp = 1000
 
@@ -165,7 +165,7 @@ class BossEnemy(Enemy):
                     self.launch_missile(player_position)
         else:
             if current_time - self.check_time > 2500:
-                self.current_pattern = random.randint(0, self.pattern_num)
+                self.current_pattern = random.randint(3, self.pattern_num)
                 self.check_time = current_time
 
     def spawn_meteor(self, count):

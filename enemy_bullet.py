@@ -12,6 +12,13 @@ class EnemyBullet:
         self.image = pygame.transform.scale(self.image, (10, 10))
         self.angle = math.atan2(self.direction[1], self.direction[0])
 
+    def get_line(self):    
+        line = ((self.rect.centerx - (20 * math.cos(self.angle)),
+                self.rect.centery - (20 * math.sin(self.angle))),
+                (self.rect.centerx + (20 * math.cos(self.angle)),
+                self.rect.centery + (20 * math.sin(self.angle))))
+        return line
+
     def update(self):
         self.rect.x += self.direction[0] * self.speed
         self.rect.y += self.direction[1] * self.speed
@@ -31,7 +38,9 @@ class EnemyBullet:
         return vector[0] * cos_a - vector[1] * sin_a, vector[0] * sin_a + vector[1] * cos_a
 
     def draw(self, screen):
-        screen.blit(self.image, self.rect.topleft)
+        rotated_image = pygame.transform.rotate(self.image, math.degrees(-self.angle))  # 각도는 -self.angle로 설정
+        rotated_rect = rotated_image.get_rect(center=self.rect.center)  # 중심을 self.rect.center에 맞춤
+        screen.blit(rotated_image, rotated_rect.topleft)
 
 class Missile:
     def __init__(self, x, y, speed, direction = (-1,0), duration = 7000):
@@ -66,7 +75,12 @@ class Missile:
 
         self.direction = (new_dx / distance, new_dy / distance)
        
-        
+    def get_line(self):
+        line = ((self.rect.centerx - (5 * math.cos(self.angle)),
+                      self.rect.centery - (5 * math.sin(self.angle))),
+                      (self.rect.centerx + (5 * math.cos(self.angle)),
+                      self.rect.centery + (5 * math.sin(self.angle))))
+        return line
 
     def update(self, target_position):
         self.calculate_acceleration(target_position)
@@ -144,7 +158,7 @@ class Meteor:
         distance = math.sqrt(dx ** 2 + dy ** 2)
         return distance
 
-    def get_edges(self):
+    def get_line(self):
         edges = []
         for i in range(len(self.rotated_vertices)):
             start = self.rotated_vertices[i]

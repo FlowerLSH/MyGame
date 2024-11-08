@@ -3,6 +3,7 @@ import settings as s
 from bullet import Bullet
 from weapon import *
 from collision_detection import *
+from specialattack import *
 
 class Player:
     def __init__(self, x, y):
@@ -22,8 +23,9 @@ class Player:
         self.hp = 3
         self.maxhp = 3
 
-        self.special_attack = 1
-        self.max_special_attack = 1
+        self.special_attack_count = 10
+        self.max_special_attack_count = 10
+        self.special_attack = SpecialLine()
 
         self.last_hit_time = 0
         self.invincibility_duration = 2000
@@ -120,6 +122,13 @@ class Player:
     def update_bullets(self):
         self.bullets = [i for i in self.bullets if i.update()]
 
+    def make_special_attack(self):
+        self.special_attack.activate()
+
+    def update_specialAttack(self):
+        if self.special_attack.active:
+            self.special_attack.update()
+
     def project_polygon(self, axis):
         corners = [self.rect.topleft, self.rect.topright, self.rect.bottomright, self.rect.bottomleft]
         min_proj = max_proj = corners[0][0] * axis[0] + corners[0][1] * axis[1]
@@ -152,11 +161,6 @@ class Player:
                         self.bullets.remove(bullet)
                         break
                     
-
-            
-            
-            
-
     def check_enemy_bullet_collision(self, enemies):
         for enemy in enemies:
             for bullet in enemy.bullets:
@@ -171,7 +175,6 @@ class Player:
                     enemy.missiles.remove(missile)
                     break
             
-            
             for meteo in enemy.meteors:
                 if SAT_detect_collision(meteo, self):
                     
@@ -179,6 +182,22 @@ class Player:
                     enemy.meteors.remove(meteo)
                     break
 
+    def check_special_attack_collision(self, enemies):
+        if self.special_attack.active:
+            for enemy in enemies:
+                sp = self.special_attack.get_line()
+                for bullet in enemy.bullets[:]:
+                    if segments_intersect(sp, bullet.get_line()):
+                        enemy.bullets.remove(bullet)
+                for missile in enemy.missiles:
+                    if segments_intersect(sp, missile.get_line()):
+                        enemy.missiles.remove(missile)
+                for meteo in enemy.meteors:
+                    meteo_line = meteo.get_line()
+                    for line in meteo_line:
+                        if segments_intersect(sp, line):
+                            enemy.meteors.remove(meteo)
+                            break
             
     def get_player_edges(self):
         return [(self.rect.topleft,self.rect.topright),
@@ -225,7 +244,6 @@ class Player:
 
         else:
             dash_text = font.render("Dash Ready", True, s.BLACK)
-            text_pos = dash_text.get_rect(center=dash_rect.center)
             screen.blit(dash_text, (20, 75))
 
     def draw(self, screen):
@@ -233,3 +251,5 @@ class Player:
         for bullet in self.bullets:
             bullet.draw(screen)
         self.draw_UI(screen)
+        if self.special_attack.active:
+            self.special_attack.draw(screen)
