@@ -5,7 +5,7 @@ stage_1_data = [[
         {"type": "boss", "x": 1000, "y": 450, "delay": 0.5},
     ]
     
-], 1, False]
+], 1, 0]
 
 # 스테이지 2
 stage_2_data = [[
@@ -26,8 +26,10 @@ stage_2_data = [[
         {"type": "elite", "x": 1000, "y": 450, "delay": 0.5},
     ]
 
-], 2, False]
+], 2, 0]
 
-maintenance_stage = [[], 0, True]
+main_stage = [[], 0, 2]
 
-stage_data = [stage_1_data, maintenance_stage, stage_2_data, ]
+maintenance_stage = [[], 0, 1]
+
+stage_data = [main_stage, stage_1_data, maintenance_stage, stage_2_data, ]

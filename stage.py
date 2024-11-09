@@ -5,10 +5,10 @@ class Stage:
         self.waves = [Wave(wave) for wave in stage_data[0]]
         self.current_wave_index = 0
         self.stage_index = stage_data[1]
-        self.is_maintenance = stage_data[2]
+        self.stage_type = stage_data[2]
 
     def update(self, enemies):
-        if not self.is_maintenance:
+        if self.stage_type == 0:
             if self.current_wave_index < len(self.waves):
                 current_wave = self.waves[self.current_wave_index]
                 new_enemy = current_wave.update()
@@ -20,6 +20,6 @@ class Stage:
         return None
     
     def is_finished(self):
-        if self.is_maintenance:
+        if self.stage_type != 0:
             return False
         return self.current_wave_index >= len(self.waves)

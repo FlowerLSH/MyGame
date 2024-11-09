@@ -4,6 +4,7 @@ from bullet import Bullet
 from weapon import *
 from collision_detection import *
 from specialattack import *
+from ui_manager import UIManager
 
 class Player:
     def __init__(self, x, y):
@@ -25,10 +26,13 @@ class Player:
 
         self.special_attack_count = 10
         self.max_special_attack_count = 10
-        self.special_attack = SpecialLine()
+        self.special_attack = []
 
         self.last_hit_time = 0
         self.invincibility_duration = 2000
+
+        self.show_key = True
+        
 
     def move(self):
         self.x_vel = 0
@@ -123,11 +127,15 @@ class Player:
         self.bullets = [i for i in self.bullets if i.update()]
 
     def make_special_attack(self):
-        self.special_attack.activate()
+        sp_attack = SpecialLine()
+        sp_attack.activate()
+        self.special_attack.append(sp_attack)
 
     def update_specialAttack(self):
-        if self.special_attack.active:
-            self.special_attack.update()
+        for sp in self.special_attack[:]:
+            sp.update()
+            if not sp.active:
+                self.special_attack.remove(sp)
 
     def project_polygon(self, axis):
         corners = [self.rect.topleft, self.rect.topright, self.rect.bottomright, self.rect.bottomleft]
@@ -144,6 +152,9 @@ class Player:
     def player_position_reset(self):
         self.rect.x = s.SCREEN_WIDTH * 0.25
         self.rect.y = s.SCREEN_HEIGHT // 2
+        self.bullets = []
+        self.special_attack = []
+        self.special_attack_count = self.max_special_attack_count
 
     def check_bullet_collision(self, enemies):
         for bullet in self.bullets:
@@ -183,21 +194,22 @@ class Player:
                     break
 
     def check_special_attack_collision(self, enemies):
-        if self.special_attack.active:
-            for enemy in enemies:
-                sp = self.special_attack.get_line()
-                for bullet in enemy.bullets[:]:
-                    if segments_intersect(sp, bullet.get_line()):
-                        enemy.bullets.remove(bullet)
-                for missile in enemy.missiles:
-                    if segments_intersect(sp, missile.get_line()):
-                        enemy.missiles.remove(missile)
-                for meteo in enemy.meteors:
-                    meteo_line = meteo.get_line()
-                    for line in meteo_line:
-                        if segments_intersect(sp, line):
-                            enemy.meteors.remove(meteo)
-                            break
+        for special_attack in self.special_attack:
+            if special_attack.active:
+                for enemy in enemies:
+                    sp = special_attack.get_line()
+                    for bullet in enemy.bullets[:]:
+                        if segments_intersect(sp, bullet.get_line()):
+                            enemy.bullets.remove(bullet)
+                    for missile in enemy.missiles:
+                        if segments_intersect(sp, missile.get_line()):
+                            enemy.missiles.remove(missile)
+                    for meteo in enemy.meteors:
+                        meteo_line = meteo.get_line()
+                        for line in meteo_line:
+                            if segments_intersect(sp, line):
+                                enemy.meteors.remove(meteo)
+                                break
             
     def get_player_edges(self):
         return [(self.rect.topleft,self.rect.topright),
@@ -212,9 +224,7 @@ class Player:
         if current_time - self.last_hit_time > self.invincibility_duration:
             self.hp -= 1
             self.last_hit_time = current_time
-             
-        if self.hp <= 0:
-            print("Game Over")
+        
 
     def get_dash_cooldown(self):
         time_since_dash = ((pygame.time.get_ticks() / 1000) - (self.last_dash_time / 1000))
@@ -224,7 +234,7 @@ class Player:
     def draw_UI(self, screen):
         # 체력 UI
         for i in range(self.hp):
-            pygame.draw.rect(screen, s.RED, (10 + i * 30, 10, 20, 20))
+            pygame.draw.rect(screen, s.RED, (10 + i * 30, 10, 25, 25))
 
         # 무기 UI
         font = pygame.font.Font(None, 24)
@@ -236,6 +246,9 @@ class Player:
         dash_color = s.GRAY if dash_cooldown > 0 else s.WHITE
         dash_rect = pygame.Rect(10, 70, 120, 30)
 
+        for i in range(self.special_attack_count):
+            pygame.draw.rect(screen, s.SKY_BLUE, (10 + i * 30, 120, 15, 15))
+
         pygame.draw.rect(screen, s.BLACK, dash_rect, 2)
         pygame.draw.rect(screen, dash_color, dash_rect.inflate(-4, -4))
         if dash_cooldown > 0:
@@ -246,10 +259,22 @@ class Player:
             dash_text = font.render("Dash Ready", True, s.BLACK)
             screen.blit(dash_text, (20, 75))
 
+        if self.show_key:
+            self.key = ["Move : arrow", "Dash : arrow double tap", "Attack : x", "Special Attack : c", "[Hide Guide : H]"]
+        else:
+            self.key = ["[Show Guide : H]"]
+
+        text_surfaces = [font.render(text, True, s.WHITE) for text in self.key]
+        text_rects = [text_surface.get_rect(topleft = (10, 150 + (i * 30)))
+                    for i, text_surface in enumerate(text_surfaces)]
+        for text_surface, text_rect in zip(text_surfaces, text_rects):
+            screen.blit(text_surface, text_rect)
+
     def draw(self, screen):
         pygame.draw.rect(screen, s.BLUE, self.rect)
         for bullet in self.bullets:
             bullet.draw(screen)
         self.draw_UI(screen)
-        if self.special_attack.active:
-            self.special_attack.draw(screen)
+        for sp in self.special_attack:
+            if sp.active:
+                sp.draw(screen)

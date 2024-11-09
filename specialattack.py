@@ -11,6 +11,8 @@ class SpecialLine:
         self.length = s.SCREEN_HEIGHT
         self.active = False
         self.trail = []
+        self.sound_rate = 80
+        self.last_sound_time = 0
 
     def activate(self):
         self.start_x = 0
@@ -35,6 +37,12 @@ class SpecialLine:
             return ((self.trail[-1], 0), (self.trail[-1], s.SCREEN_HEIGHT))
 
     def draw(self, screen):
+        sound = pygame.mixer.Sound("asset/sound/laser.wav")
+        sound.set_volume(0.7)
+        current_time = pygame.time.get_ticks()
+        if current_time - self.last_sound_time > self.sound_rate and self.active:
+            sound.play()
+            self.last_sound_time = current_time
         for i, (start) in enumerate(self.trail):
             alpha = int(255 * (i + 1) / len(self.trail))
             color = (alpha, alpha, alpha)

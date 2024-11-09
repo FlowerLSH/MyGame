@@ -165,7 +165,7 @@ class BossEnemy(Enemy):
                     self.launch_missile(player_position)
         else:
             if current_time - self.check_time > 2500:
-                self.current_pattern = random.randint(3, self.pattern_num)
+                self.current_pattern = random.randint(0, self.pattern_num)
                 self.check_time = current_time
 
     def spawn_meteor(self, count):
