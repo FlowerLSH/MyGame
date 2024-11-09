@@ -76,10 +76,10 @@ class Missile:
         self.direction = (new_dx / distance, new_dy / distance)
        
     def get_line(self):
-        line = ((self.rect.centerx - (5 * math.cos(self.angle)),
-                      self.rect.centery - (5 * math.sin(self.angle))),
-                      (self.rect.centerx + (5 * math.cos(self.angle)),
-                      self.rect.centery + (5 * math.sin(self.angle))))
+        line = ((self.rect.centerx - (20 * math.cos(self.angle)),
+                      self.rect.centery - (20 * math.sin(self.angle))),
+                      (self.rect.centerx + (20 * math.cos(self.angle)),
+                      self.rect.centery + (20 * math.sin(self.angle))))
         return line
 
     def update(self, target_position):

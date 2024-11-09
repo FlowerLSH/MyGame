@@ -18,6 +18,7 @@ class Enemy:
         self.bullet_direction = bullet_direction
         self.bullet_speed = bullet_speed
         self.move_direction = 1
+        self.image = None
         
     def take_damage(self, damage):
         self.hp -= damage
@@ -45,7 +46,8 @@ class Enemy:
         self.bullets = [i for i in self.bullets if i.update()]
 
     def draw(self, screen):
-        pygame.draw.rect(screen, s.RED, self.rect)
+        image_rect = self.image.get_rect(center = self.rect.center)
+        screen.blit(self.image, image_rect)
         for bullet in self.bullets:
             bullet.draw(screen)
         for missile in self.missiles:

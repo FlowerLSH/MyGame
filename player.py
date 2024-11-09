@@ -8,7 +8,7 @@ from ui_manager import UIManager
 
 class Player:
     def __init__(self, x, y):
-        self.rect = pygame.Rect(x, y, 20, 20)
+        self.rect = pygame.Rect(x, y, 30, 10)
         self.speed = s.PLAYER_SPEED
 
         self.last_dash_time = 0
@@ -24,14 +24,17 @@ class Player:
         self.hp = 3
         self.maxhp = 3
 
-        self.special_attack_count = 10
-        self.max_special_attack_count = 10
+        self.special_attack_count = 2
+        self.max_special_attack_count = 2
         self.special_attack = []
 
         self.last_hit_time = 0
         self.invincibility_duration = 2000
 
         self.show_key = True
+
+        self.image = pygame.image.load("asset/image/player.png")
+        self.image = pygame.transform.scale(self.image, (60, 20))
         
 
     def move(self):
@@ -232,9 +235,11 @@ class Player:
         return remaining_time
     
     def draw_UI(self, screen):
+        heart_image = pygame.image.load("asset/image/heart.png")
+        heart_image = pygame.transform.scale(heart_image, (25, 25))
         # 체력 UI
         for i in range(self.hp):
-            pygame.draw.rect(screen, s.RED, (10 + i * 30, 10, 25, 25))
+            screen.blit(heart_image, (10 + i * 30, 10))
 
         # 무기 UI
         font = pygame.font.Font(None, 24)
@@ -271,7 +276,8 @@ class Player:
             screen.blit(text_surface, text_rect)
 
     def draw(self, screen):
-        pygame.draw.rect(screen, s.BLUE, self.rect)
+        image_rect = self.image.get_rect(center = self.rect.center)
+        screen.blit(self.image, image_rect)
         for bullet in self.bullets:
             bullet.draw(screen)
         self.draw_UI(screen)
