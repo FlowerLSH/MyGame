@@ -1,6 +1,13 @@
 import math
 import pygame
 
+def aabb(rect1, rect2):
+    if rect1.right < rect2.left or rect2.right < rect1.left:
+        return False
+    if rect1.top > rect2.bottom or rect2.top > rect1.bottom:
+        return False
+    return True
+
 def get_rect_vertices(rect, angle):
     cx, cy = rect.center
     corners = [
@@ -30,27 +37,23 @@ def get_axes(vertices):
 def dot(v1, v2):
     return v1[0] * v2[0] + v1[1] * v2[1]
 
-def aabb(rect1, rect2):
-    if rect1.right < rect2.left or rect2.right < rect1.left:
-        return False
-    if rect1.top > rect2.bottom or rect2.top > rect1.bottom:
-        return False
-    return True
-
 def obb(rect1, rect2, angle1, angle2):
     vertices1 = get_rect_vertices(rect1, angle1)
     vertices2 = get_rect_vertices(rect2, angle2)
     axes1 = get_axes(vertices1)
     axes2 = get_axes(vertices2)
-    T = (rect2.centerx - rect1.centerx, rect2.centery - rect1.centery)
+    # T = (rect2.centerx - rect1.centerx, rect2.centery - rect1.centery)
 
     for axis in axes1 + axes2:
-        proj1 = max(dot(vertex, axis) for vertex in vertices1) - min(dot(vertex, axis) for vertex in vertices1)
-        proj2 = max(dot(vertex, axis) for vertex in vertices2) - min(dot(vertex, axis) for vertex in vertices2)
+        proj1_max, proj1_min = max(dot(vertex, axis) for vertex in vertices1), min(dot(vertex, axis) for vertex in vertices1)
+        proj2_max, proj2_min  = max(dot(vertex, axis) for vertex in vertices2), min(dot(vertex, axis) for vertex in vertices2)
         
-        t_proj = abs(dot(T, axis))
+        # t_proj = abs(dot(T, axis))
 
-        if t_proj > (proj1 + proj2) / 2:
+        # if t_proj > (proj1 + proj2) / 2:
+        #     return False
+
+        if proj1_max <= proj2_min or proj2_max <= proj1_min:
             return False
 
     return True

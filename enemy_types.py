@@ -15,21 +15,21 @@ class SmallEnemy(Enemy):
 class MediumEnemy(Enemy):
     def __init__(self, x, y):
         super().__init__(x, y, hp = 100, speed = 2, size_x = 100, size_y = 100, fire_rate = 1500)
-        self.image = pygame.image.load("asset/image/medium_green.png")
+        self.image = pygame.image.load("asset/image/medium_red.png")
         self.image = pygame.transform.scale(self.image, (100, 100))
         self.image = pygame.transform.flip(self.image, True, False)
         
 class LargeEnemy(Enemy):
     def __init__(self, x, y):
         super().__init__(x, y, hp = 200, speed = 1, size_x = 125, size_y = 125, fire_rate = 2000)
-        self.image = pygame.image.load("asset/image/big_blue.png")
+        self.image = pygame.image.load("asset/image/big_red.png")
         self.image = pygame.transform.scale(self.image, (125, 125))
         self.image = pygame.transform.flip(self.image, True, False)
 
 class HomingEnemySmall(HomingEnemy):
     def __init__(self, x, y):
         super().__init__(x, y, hp=20, speed=1.5, size_x=20, size_y=20, fire_rate=1500, bullet_speed=3)
-        self.image = pygame.image.load("asset/image/small_red.png")
+        self.image = pygame.image.load("asset/image/small_green.png")
         self.image = pygame.transform.scale(self.image, (100, 100))
         self.image = pygame.transform.flip(self.image, True, False)
 
@@ -43,7 +43,7 @@ class HomingEnemyMedium(HomingEnemy):
 class HomingEnemyLarge(HomingEnemy):
     def __init__(self, x, y):
         super().__init__(x, y, hp=60, speed=1, size_x=40, size_y=40, fire_rate=2000, bullet_speed=2)
-        self.image = pygame.image.load("asset/image/big_blue.png")
+        self.image = pygame.image.load("asset/image/big_green.png")
         self.image = pygame.transform.scale(self.image, (100, 100))
         self.image = pygame.transform.flip(self.image, True, False)
 
@@ -58,7 +58,7 @@ class EliteEnemy(Enemy):
         self.last_diagonal_shot_time = 0
         self.last_targeted_shot_time = 0
 
-        self.image = pygame.image.load("asset/image/medium_green.png")
+        self.image = pygame.image.load("asset/image/medium_blue.png")
         self.image = pygame.transform.scale(self.image, (175, 175))
         self.image = pygame.transform.flip(self.image, True, False)
 
@@ -105,7 +105,7 @@ class BossEnemy(Enemy):
     def __init__(self, x, y):
         super().__init__(x, y, hp = 1000, speed=0.8, size_x=250, size_y=250, fire_rate=500, bullet_speed=5)
         self.phase = 1
-        self.pattern_num = 4
+        self.pattern_num = 2
         self.current_pattern = 0
         self.maxhp = 1000
 
@@ -121,7 +121,7 @@ class BossEnemy(Enemy):
         self.targeted_fire_rate = 700
         self.last_spread_shot_time = 0
         self.last_targeted_shot_time = 0
-        self.barrage_duration = 7000 
+        self.spread_shot_duration = 7000 
 
         self.fast_fire_rate = 25
         self.last_fast_fire_time = 0
@@ -162,7 +162,7 @@ class BossEnemy(Enemy):
         if self.current_pattern:
             match self.current_pattern:
                 case 1:
-                    if current_time - self.check_time > self.barrage_duration:
+                    if current_time - self.check_time > self.spread_shot_duration:
                         self.check_time = current_time
                         self.current_pattern = 0
                         self.speed = 0.8
@@ -191,7 +191,7 @@ class BossEnemy(Enemy):
                     self.launch_missile(player_position)
         else:
             if current_time - self.check_time > 2500:
-                self.current_pattern = random.randint(0, self.pattern_num)
+                self.current_pattern = random.randint(2, self.pattern_num)
                 self.check_time = current_time
 
     def spawn_meteor(self, count):

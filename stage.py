@@ -1,4 +1,4 @@
-from Enemy_wave import Wave
+from enemy_wave import Wave
 
 class Stage:
     def __init__(self, stage_data):

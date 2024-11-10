@@ -42,12 +42,11 @@ class Player:
         self.y_vel = 0
         keys = pygame.key.get_pressed()
 
-        # 방향키별 이동 및 대쉬 조건 확인
         if keys[pygame.K_LEFT]:
             self.x_vel = -self.speed
-            if self.key_released['left']:  # 키가 처음 눌렸을 때만 대쉬 확인
+            if self.key_released['left']:
                 self.check_dash('left', -s.DASH_DISTANCE, 0)
-                self.key_released['left'] = False  # 대쉬 실행 후 릴리즈 초기화
+                self.key_released['left'] = False
         else:
             self.key_released['left'] = True
 
@@ -75,11 +74,9 @@ class Player:
         else:
             self.key_released['down'] = True
 
-        # 위치 업데이트
         self.rect.x += self.x_vel
         self.rect.y += self.y_vel
 
-        # 화면 밖으로 나가지 못하게 위치 제한
         if self.rect.left < 0:
             self.rect.left = 0
         if self.rect.right > s.SCREEN_WIDTH:
@@ -92,19 +89,16 @@ class Player:
     def check_dash(self, direction, dx, dy):
         current_time = pygame.time.get_ticks()
 
-        # 쿨타임 확인
         if current_time - self.last_dash_time < s.DASH_COOLDOWN:
             return
 
         last_key_time = self.last_key_time[direction]
-        # 같은 방향키가 설정된 간격 내에 두 번 눌렸을 경우에만 대쉬 실행
+
         if direction == self.last_key_input and current_time - last_key_time < s.DASH_DOUBLE_TAP_TIME:
-            print("dashed")
             self.rect.x += dx
             self.rect.y += dy
             self.last_dash_time = current_time
 
-        # 현재 키 입력 시간과 방향 업데이트
         self.last_key_time[direction] = current_time
         self.last_key_input = direction
 
@@ -162,7 +156,7 @@ class Player:
     def check_bullet_collision(self, enemies):
         for bullet in self.bullets:
             for enemy in enemies:
-                if obb(bullet.rect, enemy.rect, 0, 0):
+                if aabb(bullet.rect, enemy.rect):
                     if not enemy.take_damage(bullet.damage * self.attack_bonus):
                         enemies.remove(enemy)
                     self.bullets.remove(bullet)
