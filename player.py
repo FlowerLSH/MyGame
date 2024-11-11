@@ -1,10 +1,10 @@
 import pygame
 import settings as s
-from bullet import Bullet
+from bullet import *
 from weapon import *
 from collision_detection import *
 from specialattack import *
-from ui_manager import UIManager
+from ui_manager import *
 
 class Player:
     def __init__(self, x, y):
@@ -98,6 +98,8 @@ class Player:
             self.rect.x += dx
             self.rect.y += dy
             self.last_dash_time = current_time
+            sound = pygame.mixer.Sound("asset/sound/dash_sound.wav")
+            sound.play()
 
         self.last_key_time[direction] = current_time
         self.last_key_input = direction
@@ -217,9 +219,11 @@ class Player:
     
 
     def take_damage(self):
+        sound = pygame.mixer.Sound("asset/sound/hit_sound.wav")
         current_time = pygame.time.get_ticks()
         if current_time - self.last_hit_time > self.invincibility_duration:
             self.hp -= 1
+            sound.play()
             self.last_hit_time = current_time
         
 
@@ -259,7 +263,7 @@ class Player:
             screen.blit(dash_text, (20, 75))
 
         if self.show_key:
-            self.key = ["Move : arrow", "Dash : arrow double tap", "Attack : x", "Special Attack : c", "[Hide Guide : H]"]
+            self.key = ["Move : arrow", "Dash : arrow double tap", "Attack : x", "Special Attack : c", "Switch Weapon : 1, 2, 3", "[Hide Guide : H]"]
         else:
             self.key = ["[Show Guide : H]"]
 

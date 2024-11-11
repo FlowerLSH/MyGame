@@ -5,28 +5,7 @@ from player import Player
 from stage import Stage
 from stage_data import *
 from ui_manager import UIManager
-import time
 from collision_detection import *
-
-def fade_out(screen, speed=5):
-    fade_surface = pygame.Surface(screen.get_size())
-    fade_surface = fade_surface.convert()
-    for i in range(0, 255, speed):
-        fade_surface.fill((0, 0, 0))
-        fade_surface.set_alpha(i)
-        screen.blit(fade_surface, (0, 0))
-        pygame.display.flip()
-        pygame.time.delay(30)
-
-def fade_in(screen, speed=5):
-    fade_surface = pygame.Surface(screen.get_size())
-    fade_surface = fade_surface.convert()
-    for i in range(255, -1, -speed):
-        fade_surface.fill((0, 0, 0))
-        fade_surface.set_alpha(i)
-        screen.blit(fade_surface, (0, 0))
-        pygame.display.flip()
-        pygame.time.delay(30)
 
 pygame.init()
 
@@ -95,8 +74,6 @@ while not loopFinished:
                 main_stage_check = False
                 if stage_index < (len(stage_data) - 1):
                     stage_index += 1
-                    fade_out(screen)
-                    fade_in(screen)
                     chosen = False
                     player.player_position_reset()
                     current_stage = Stage(stage_data[stage_index])
@@ -181,7 +158,7 @@ while not loopFinished:
 
     if game_clear:
         font = pygame.font.Font(None, 40)
-        weapon_text = font.render("Press ESC to QUIT", True, s.BLACK)
+        weapon_text = font.render("Press ESC to QUIT", True, s.WHITE)
         screen.blit(weapon_text, (s.SCREEN_WIDTH // 2 - 50, 100))
     
     if current_stage.stage_type == 1:
@@ -212,8 +189,6 @@ while not loopFinished:
         if aabb(player.rect, portal):
             if stage_index < (len(stage_data) - 1):
                 stage_index += 1
-                fade_out(screen)
-                fade_in(screen)
                 chosen = False
                 player.player_position_reset()
                 current_stage = Stage(stage_data[stage_index])
@@ -275,14 +250,12 @@ while not loopFinished:
         if stage_index < (len(stage_data) - 1):
             ui_manager.display_stage_ui(f"Stage {current_stage.stage_index} Clear!!")
             stage_index += 1
-            fade_out(screen)
-            fade_in(screen)
             current_stage = Stage(stage_data[stage_index])
             player.player_position_reset()
             if current_stage.stage_type == 1:
                 ui_manager.display_stage_ui("Maintenance Stage")
             else:
-                ui_manager.display_stage_ui(f"Stage {current_stage.stage_index} Start!")
+                   ui_manager.display_stage_ui(f"Stage {current_stage.stage_index} Start!")
             enemies = []
         else:
             ui_manager.display_stage_ui("THE END")

@@ -1,5 +1,4 @@
 import math
-import pygame
 
 def aabb(rect1, rect2):
     if rect1.right < rect2.left or rect2.right < rect1.left:

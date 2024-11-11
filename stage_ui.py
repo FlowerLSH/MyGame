@@ -9,7 +9,7 @@ class StageUI:
         self.font = font
         self.duration = duration
         self.alpha = 0
-        self.fade_in = True
+        self.fade_out = True
         self.start_time = pygame.time.get_ticks()
         self.finished = False
 
@@ -17,13 +17,13 @@ class StageUI:
         current_time = pygame.time.get_ticks()
         elapsed_time = current_time - self.start_time
 
-        if self.fade_in:
-            self.alpha = min(255, (elapsed_time / 500) * 255)  # 500ms 동안 페이드 인
+        if self.fade_out:
+            self.alpha = min(255, (elapsed_time / 500) * 255)
             if elapsed_time >= 500: 
-                self.fade_in = False
+                self.fade_out = False
                 self.start_time = current_time
         
-        elif not self.fade_in and elapsed_time < self.duration:
+        elif not self.fade_out and elapsed_time < self.duration:
             self.alpha = 255
 
         

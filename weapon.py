@@ -1,7 +1,6 @@
 import pygame
 from bullet import Bullet
 import settings as s
-import time
 import math
 
 class Weapon:

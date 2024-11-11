@@ -1,5 +1,4 @@
 import pygame
-import random
 import settings as s
 
 class SpecialLine:
